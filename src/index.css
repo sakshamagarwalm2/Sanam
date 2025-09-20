@@ -28,7 +28,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.4),
+    rgba(68, 67, 67, 0.2),
     transparent
   );
   animation: shimmer 8s ease-in-out infinite;
@@ -57,7 +57,7 @@
 
 /* Add a subtle outline to ensure visibility */
 .liquid-glass:before {
-  outline: 1px solid rgba(255, 255, 255, 0.9);
+  outline: 1px solid rgba(0, 0, 0, 0.9);
   outline-offset: -1px;
 }
 
