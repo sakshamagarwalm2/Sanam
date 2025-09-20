@@ -82,14 +82,14 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
       <div className="text-xs text-white/90 liquid-glass-bar py-1 px-4 flex items-center justify-center gap-4 draggable-area">
         {/* Show/Hide */}
         <div className="flex items-center gap-2">
-          <span className="text-[11px] leading-none">Show/Hide</span>
+          {/* <span className="text-[11px] leading-none">Show/Hide</span> */}
           <div className="flex gap-1">
             <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
               ⌘
             </button>
-            <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
+            {/* <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
               B
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -121,7 +121,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
             {isRecording ? (
               <span className="animate-pulse">● Stop Recording</span>
             ) : (
-              <span>🎤 Record Voice</span>
+              <span>Listen</span>
             )}
           </button>
         </div>
@@ -133,7 +133,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
             onClick={onChatToggle}
             type="button"
           >
-            💬 Chat
+            Ask
           </button>
         </div>
 
@@ -144,7 +144,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
             onClick={onSettingsToggle}
             type="button"
           >
-            ⚙️ Models
+            CPU
           </button>
         </div>
 
