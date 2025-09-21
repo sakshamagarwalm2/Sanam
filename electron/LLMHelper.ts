@@ -238,7 +238,8 @@ When the query involves problem-solving, especially coding or technical issues, 
           mimeType: "audio/mp3"
         }
       }
-      const prompt = `${this.systemPrompt}\n\nDescribe this audio clip concisely and suggest possible actions.`
+      // Updated prompt for conciseness and bullet points
+      const prompt = `Based on this audio clip, provide a very brief description and a numbered list of 1-3 concise, actionable suggestions. The entire response should be less than 50 words.`
 
       const result = await this.model.generateContent([prompt, audioPart])
       const response = await result.response
@@ -253,7 +254,8 @@ When the query involves problem-solving, especially coding or technical issues, 
   public async analyzeAudioFromBase64(data: string, mimeType: string) {
     try {
       const audioPart = { inlineData: { data, mimeType } }
-      const prompt = `${this.systemPrompt}\n\nDescribe this audio clip concisely and suggest possible actions.`
+      // Updated prompt for conciseness and bullet points
+      const prompt = `Based on this audio clip, provide a very short ans (20 words) and a numbered list of 1-3 concise. The entire response should be less than 10 words and in very short.`
 
       const result = await this.model.generateContent([prompt, audioPart])
       const response = await result.response

@@ -9,6 +9,8 @@ import {
 } from "../components/ui/toast"
 import QueueCommands from "../components/Queue/QueueCommands"
 import ModelSelector from "../components/ui/ModelSelector"
+import ReactMarkdown from 'react-markdown'
+import rehypeRaw from 'rehype-raw'
 
 interface QueueProps {
   setView: React.Dispatch<React.SetStateAction<"queue" | "solutions" | "debug">>
@@ -275,7 +277,9 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
                       }`}
                       style={{ wordBreak: "break-word", lineHeight: "1.4" }}
                     >
-                      {msg.text}
+                      <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                        {msg.text}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 ))
