@@ -141,7 +141,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange, onChatOpen
       {/* Current Status */}
       {currentConfig && (
         <div className="text-xs text-emerald-500 bg-black/50 p-2 rounded">
-          Current: {currentConfig.provider === 'ollama' ? 'Ollama:' : 'AI:'} {currentConfig.model}
+          Current: {currentConfig.provider === 'ollama' ? 'Ollama:' : 'AI:'} <span className='text-white'>{currentConfig.model}</span>
         </div>
       )}
 

@@ -117,6 +117,9 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Analyze audio given as Base64 string
   ipcMain.handle("analyze-audio-base64", async (event, data: string, mimeType: string) => {
     try {
+      if (!appState.processingHelper.isLLMHelperReady()) {
+        throw new Error("LLM Helper not configured. Please set up your AI model first.")
+      }
       const result = await appState.processingHelper.processAudioBase64(data, mimeType)
       return result
     } catch (error: any) {
@@ -128,6 +131,9 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Analyze audio given as a file path
   ipcMain.handle("analyze-audio-file", async (event, path: string) => {
     try {
+      if (!appState.processingHelper.isLLMHelperReady()) {
+        throw new Error("LLM Helper not configured. Please set up your AI model first.")
+      }
       const result = await appState.processingHelper.processAudioFile(path)
       return result
     } catch (error: any) {
@@ -139,7 +145,11 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Analyze image given as a file path
   ipcMain.handle("analyze-image-file", async (event, path: string) => {
     try {
-      const result = await appState.processingHelper.getLLMHelper().analyzeImageFile(path)
+      if (!appState.processingHelper.isLLMHelperReady()) {
+        throw new Error("LLM Helper not configured. Please set up your AI model first.")
+      }
+      const llmHelper = appState.processingHelper.getLLMHelper()
+      const result = await llmHelper!.analyzeImageFile(path)
       return result
     } catch (error: any) {
       console.error("Error in analyze-image-file handler:", error)
@@ -156,7 +166,11 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Send a chat message to Gemini (or Ollama if selected)
   ipcMain.handle("gemini-chat", async (event, message: string) => {
     try {
-      const result = await appState.processingHelper.getLLMHelper().chatWithGemini(message)
+      if (!appState.processingHelper.isLLMHelperReady()) {
+        throw new Error("LLM Helper not configured. Please set up your AI model first.")
+      }
+      const llmHelper = appState.processingHelper.getLLMHelper()
+      const result = await llmHelper!.chatWithGemini(message)
       return result
     } catch (error: any) {
       console.error("Error in gemini-chat handler:", error)
@@ -173,23 +187,47 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Get current LLM provider (Gemini or Ollama) and model details
   ipcMain.handle("get-current-llm-config", async () => {
     try {
+      if (!appState.processingHelper.isLLMHelperReady()) {
+        // Return default config if not initialized
+        return {
+          provider: "gemini",
+          model: "Not configured",
+          isOllama: false
+        }
+      }
+      
       const llmHelper = appState.processingHelper.getLLMHelper()
       return {
-        provider: llmHelper.getCurrentProvider(),
-        model: llmHelper.getCurrentModel(),
-        isOllama: llmHelper.isUsingOllama()
+        provider: llmHelper!.getCurrentProvider(),
+        model: llmHelper!.getCurrentModel(),
+        isOllama: llmHelper!.isUsingOllama()
       }
     } catch (error: any) {
       console.error("Error getting current LLM config:", error)
-      throw error
+      // Return safe default instead of throwing
+      return {
+        provider: "gemini",
+        model: "Error getting config",
+        isOllama: false
+      }
     }
   })
 
   // Get list of available Ollama models installed locally
   ipcMain.handle("get-available-ollama-models", async () => {
     try {
+      // For Ollama models, we can try to get them even if LLM helper isn't fully configured
+      // This allows users to see available models before switching
+      if (!appState.processingHelper.isLLMHelperReady()) {
+        // Try to create a temporary Ollama connection to get models
+        const { LLMHelper } = await import("./LLMHelper")
+        const tempHelper = new LLMHelper(undefined, true, undefined, process.env.OLLAMA_URL || "http://localhost:11434")
+        const models = await tempHelper.getOllamaModels()
+        return models
+      }
+      
       const llmHelper = appState.processingHelper.getLLMHelper()
-      const models = await llmHelper.getOllamaModels()
+      const models = await llmHelper!.getOllamaModels()
       return models
     } catch (error: any) {
       console.error("Error getting Ollama models:", error)
@@ -200,8 +238,13 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Switch LLM provider to Ollama with optional model and URL
   ipcMain.handle("switch-to-ollama", async (_, model?: string, url?: string) => {
     try {
-      const llmHelper = appState.processingHelper.getLLMHelper()
-      await llmHelper.switchToOllama(model, url)
+      // Use the ProcessingHelper's reinitialize method
+      appState.processingHelper.reinitializeLLMHelper(
+        true, // useOllama = true
+        undefined, // apiKey not needed for Ollama
+        model,
+        url
+      )
       return { success: true }
     } catch (error: any) {
       console.error("Error switching to Ollama:", error)
@@ -212,8 +255,11 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Switch LLM provider to Google Gemini
   ipcMain.handle("switch-to-gemini", async (_, apiKey?: string) => {
     try {
-      const llmHelper = appState.processingHelper.getLLMHelper()
-      await llmHelper.switchToGemini(apiKey)
+      // Use the ProcessingHelper's reinitialize method
+      appState.processingHelper.reinitializeLLMHelper(
+        false, // useOllama = false
+        apiKey
+      )
       return { success: true }
     } catch (error: any) {
       console.error("Error switching to Gemini:", error)
@@ -224,8 +270,12 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Test current LLM connection (Ollama or Gemini)
   ipcMain.handle("test-llm-connection", async () => {
     try {
+      if (!appState.processingHelper.isLLMHelperReady()) {
+        return { success: false, error: "LLM Helper not configured. Please set up your AI model first." }
+      }
+      
       const llmHelper = appState.processingHelper.getLLMHelper()
-      const result = await llmHelper.testConnection()
+      const result = await llmHelper!.testConnection()
       return result
     } catch (error: any) {
       console.error("Error testing LLM connection:", error)

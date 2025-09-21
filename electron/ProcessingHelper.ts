@@ -14,7 +14,7 @@ dotenv.config()
 
 export class ProcessingHelper {
   private appState: AppState
-  private llmHelper: LLMHelper
+  private llmHelper: LLMHelper | null = null
 
   // Controllers allow cancelling ongoing AI requests (important if user cancels)
   private currentProcessingAbortController: AbortController | null = null
@@ -23,26 +23,72 @@ export class ProcessingHelper {
   constructor(appState: AppState) {
     this.appState = appState
     
-    /**
-     * -------- Initialize AI Provider (LLM) --------
-     * You can run either:
-     *  - Ollama (local model, via USE_OLLAMA=true)
-     *  - Gemini (cloud API, requires GEMINI_API_KEY)
-     */
-    const useOllama = process.env.USE_OLLAMA === "true"
-    const ollamaModel = process.env.OLLAMA_MODEL // auto-detected if not provided
-    const ollamaUrl = process.env.OLLAMA_URL || "http://localhost:11434"
-    
-    if (useOllama) {
-      console.log("[ProcessingHelper] Initializing with Ollama")
-      this.llmHelper = new LLMHelper(undefined, true, ollamaModel, ollamaUrl)
-    } else {
-      const apiKey = process.env.GEMINI_API_KEY
-      if (!apiKey) {
-        throw new Error("GEMINI_API_KEY not found. Either set GEMINI_API_KEY or enable Ollama with USE_OLLAMA=true")
+    // Initialize LLM helper lazily - don't require API key at startup
+    this.initializeLLMHelper()
+  }
+
+  /**
+   * Initialize LLM Helper - allows app to start without API key
+   */
+  private initializeLLMHelper(): void {
+    try {
+      const useOllama = process.env.USE_OLLAMA === "true"
+      const ollamaModel = process.env.OLLAMA_MODEL // auto-detected if not provided
+      const ollamaUrl = process.env.OLLAMA_URL || "http://localhost:11434"
+      
+      if (useOllama) {
+        console.log("[ProcessingHelper] Initializing with Ollama")
+        this.llmHelper = new LLMHelper(undefined, true, ollamaModel, ollamaUrl)
+      } else {
+        const apiKey = process.env.GEMINI_API_KEY
+        if (apiKey) {
+          console.log("[ProcessingHelper] Initializing with Gemini using env API key")
+          this.llmHelper = new LLMHelper(apiKey, false)
+        } else {
+          console.log("[ProcessingHelper] No Gemini API key found in env - will need to be set via frontend")
+          // Don't initialize LLM helper yet - will be done when API key is provided
+          this.llmHelper = null
+        }
       }
-      console.log("[ProcessingHelper] Initializing with Gemini")
-      this.llmHelper = new LLMHelper(apiKey, false)
+    } catch (error) {
+      console.error("[ProcessingHelper] Error initializing LLM helper:", error)
+      this.llmHelper = null
+    }
+  }
+
+  /**
+   * Reinitialize LLM Helper with new configuration
+   * Called when user changes model configuration via frontend
+   */
+  public reinitializeLLMHelper(useOllama: boolean, apiKey?: string, ollamaModel?: string, ollamaUrl?: string): void {
+    try {
+      if (useOllama) {
+        console.log("[ProcessingHelper] Switching to Ollama")
+        this.llmHelper = new LLMHelper(
+          undefined, 
+          true, 
+          ollamaModel || process.env.OLLAMA_MODEL, 
+          ollamaUrl || process.env.OLLAMA_URL || "http://localhost:11434"
+        )
+      } else {
+        if (!apiKey) {
+          throw new Error("API key is required for Gemini")
+        }
+        console.log("[ProcessingHelper] Switching to Gemini")
+        this.llmHelper = new LLMHelper(apiKey, false)
+      }
+    } catch (error) {
+      console.error("[ProcessingHelper] Error reinitializing LLM helper:", error)
+      throw error
+    }
+  }
+
+  /**
+   * Check if LLM Helper is ready to use
+   */
+  private ensureLLMHelperReady(): void {
+    if (!this.llmHelper) {
+      throw new Error("LLM Helper not initialized. Please configure your AI model first.")
     }
   }
 
@@ -53,6 +99,14 @@ export class ProcessingHelper {
   public async processScreenshots(): Promise<void> {
     const mainWindow = this.appState.getMainWindow()
     if (!mainWindow) return
+
+    // Check if LLM helper is ready
+    try {
+      this.ensureLLMHelperReady()
+    } catch (error: any) {
+      mainWindow.webContents.send(this.appState.PROCESSING_EVENTS.INITIAL_SOLUTION_ERROR, error.message)
+      return
+    }
 
     const view = this.appState.getView()
 
@@ -80,7 +134,7 @@ export class ProcessingHelper {
         mainWindow.webContents.send(this.appState.PROCESSING_EVENTS.INITIAL_START)
         this.appState.setView('solutions')
         try {
-          const audioResult = await this.llmHelper.analyzeAudioFile(lastPath)
+          const audioResult = await this.llmHelper!.analyzeAudioFile(lastPath)
           // Send transcription/understanding back to renderer
           mainWindow.webContents.send(this.appState.PROCESSING_EVENTS.PROBLEM_EXTRACTED, audioResult)
 
@@ -109,7 +163,7 @@ export class ProcessingHelper {
       this.currentProcessingAbortController = new AbortController()
 
       try {
-        const imageResult = await this.llmHelper.analyzeImageFile(lastPath)
+        const imageResult = await this.llmHelper!.analyzeImageFile(lastPath)
 
         // Wrap result into "problemInfo" structure
         const problemInfo = {
@@ -157,11 +211,11 @@ export class ProcessingHelper {
         if (!problemInfo) throw new Error("No problem info available")
 
         // Generate solution for problem
-        const currentSolution = await this.llmHelper.generateSolution(problemInfo)
+        const currentSolution = await this.llmHelper!.generateSolution(problemInfo)
         const currentCode = currentSolution.solution.code
 
         // Debug solution using extra screenshots
-        const debugResult = await this.llmHelper.debugSolutionWithImages(
+        const debugResult = await this.llmHelper!.debugSolutionWithImages(
           problemInfo,
           currentCode,
           extraScreenshotQueue
@@ -201,14 +255,16 @@ export class ProcessingHelper {
    * Analyze audio directly from base64 string (e.g., microphone stream)
    */
   public async processAudioBase64(data: string, mimeType: string) {
-    return this.llmHelper.analyzeAudioFromBase64(data, mimeType)
+    this.ensureLLMHelperReady()
+    return this.llmHelper!.analyzeAudioFromBase64(data, mimeType)
   }
 
   /**
    * Analyze audio directly from file path
    */
   public async processAudioFile(filePath: string) {
-    return this.llmHelper.analyzeAudioFile(filePath)
+    this.ensureLLMHelperReady()
+    return this.llmHelper!.analyzeAudioFile(filePath)
   }
 
   /**
@@ -216,5 +272,12 @@ export class ProcessingHelper {
    */
   public getLLMHelper() {
     return this.llmHelper
+  }
+
+  /**
+   * Check if LLM helper is initialized and ready
+   */
+  public isLLMHelperReady(): boolean {
+    return this.llmHelper !== null
   }
 }
