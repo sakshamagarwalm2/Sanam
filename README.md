@@ -36,7 +36,7 @@ Tinkle is an open-source, privacy-focused AI assistant that runs as a transparen
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/sakshamagarwalm2/Tinkle.git
+   git clone https://github.com/sakshamagarwalm2/Tinkle
    cd Tinkle
    ```
 
@@ -387,7 +387,7 @@ Tinkle/
 ### Development Setup
 
 ```bash
-git clone https://github.com/your-username/Tinkle.git
+git clone https://github.com/sakshamagarwalm2/Tinkle
 cd Tinkle
 npm install
 npm run app:dev
