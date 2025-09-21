@@ -1,6 +1,17 @@
 import { globalShortcut, app } from "electron"
 import { AppState } from "./main" // Adjust the import path if necessary
 
+// 🔑 Shortcut Key Constants (easy to update here in future)
+const SHORTCUT_SHOW_CENTER = "CommandOrControl+Shift+Space"
+const SHORTCUT_SCREENSHOT = "CommandOrControl+H"
+const SHORTCUT_PROCESS = "CommandOrControl+Enter"
+const SHORTCUT_RESET = "CommandOrControl+R"
+const SHORTCUT_MOVE_LEFT = "CommandOrControl+Left"
+const SHORTCUT_MOVE_RIGHT = "CommandOrControl+Right"
+const SHORTCUT_MOVE_UP = "CommandOrControl+Up"
+const SHORTCUT_MOVE_DOWN = "CommandOrControl+Down"
+const SHORTCUT_TOGGLE_WINDOW = "CommandOrControl+B"
+
 export class ShortcutsHelper {
   private appState: AppState
 
@@ -8,20 +19,27 @@ export class ShortcutsHelper {
     this.appState = appState
   }
 
+  /**
+   * Register all global shortcuts for the app.
+   * These shortcuts work system-wide, not just inside the app window.
+   */
   public registerGlobalShortcuts(): void {
-    // Add global shortcut to show/center window
-    globalShortcut.register("CommandOrControl+Shift+Space", () => {
+    // --- Show/Center the app window ---
+    globalShortcut.register(SHORTCUT_SHOW_CENTER, () => {
       console.log("Show/Center window shortcut pressed...")
       this.appState.centerAndShowWindow()
     })
 
-    globalShortcut.register("CommandOrControl+H", async () => {
+    // --- Take a screenshot and send preview to renderer ---
+    globalShortcut.register(SHORTCUT_SCREENSHOT, async () => {
       const mainWindow = this.appState.getMainWindow()
       if (mainWindow) {
         console.log("Taking screenshot...")
         try {
           const screenshotPath = await this.appState.takeScreenshot()
           const preview = await this.appState.getImagePreview(screenshotPath)
+
+          // Notify renderer (UI) that a screenshot was taken
           mainWindow.webContents.send("screenshot-taken", {
             path: screenshotPath,
             preview
@@ -32,61 +50,64 @@ export class ShortcutsHelper {
       }
     })
 
-    globalShortcut.register("CommandOrControl+Enter", async () => {
+    // --- Process screenshots/audio (send to AI) ---
+    globalShortcut.register(SHORTCUT_PROCESS, async () => {
+      console.log("Processing screenshots/audio...")
       await this.appState.processingHelper.processScreenshots()
     })
 
-    globalShortcut.register("CommandOrControl+R", () => {
-      console.log(
-        "Command + R pressed. Canceling requests and resetting queues..."
-      )
+    // --- Reset queues and cancel processing ---
+    globalShortcut.register(SHORTCUT_RESET, () => {
+      console.log("Reset shortcut pressed. Canceling requests and resetting queues...")
 
-      // Cancel ongoing API requests
+      // Cancel ongoing AI requests
       this.appState.processingHelper.cancelOngoingRequests()
 
-      // Clear both screenshot queues
+      // Clear all screenshot/audio queues
       this.appState.clearQueues()
-
       console.log("Cleared queues.")
 
-      // Update the view state to 'queue'
+      // Switch UI back to 'queue' view
       this.appState.setView("queue")
 
-      // Notify renderer process to switch view to 'queue'
+      // Notify renderer to reset view
       const mainWindow = this.appState.getMainWindow()
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send("reset-view")
       }
     })
 
-    // New shortcuts for moving the window
-    globalShortcut.register("CommandOrControl+Left", () => {
-      console.log("Command/Ctrl + Left pressed. Moving window left.")
+    // --- Window movement controls ---
+    globalShortcut.register(SHORTCUT_MOVE_LEFT, () => {
+      console.log("Move window left")
       this.appState.moveWindowLeft()
     })
 
-    globalShortcut.register("CommandOrControl+Right", () => {
-      console.log("Command/Ctrl + Right pressed. Moving window right.")
+    globalShortcut.register(SHORTCUT_MOVE_RIGHT, () => {
+      console.log("Move window right")
       this.appState.moveWindowRight()
     })
-    globalShortcut.register("CommandOrControl+Down", () => {
-      console.log("Command/Ctrl + down pressed. Moving window down.")
+
+    globalShortcut.register(SHORTCUT_MOVE_DOWN, () => {
+      console.log("Move window down")
       this.appState.moveWindowDown()
     })
-    globalShortcut.register("CommandOrControl+Up", () => {
-      console.log("Command/Ctrl + Up pressed. Moving window Up.")
+
+    globalShortcut.register(SHORTCUT_MOVE_UP, () => {
+      console.log("Move window up")
       this.appState.moveWindowUp()
     })
 
-    globalShortcut.register("CommandOrControl+B", () => {
+    // --- Toggle window visibility (show/hide app) ---
+    globalShortcut.register(SHORTCUT_TOGGLE_WINDOW, () => {
       this.appState.toggleMainWindow()
-      // If window exists and we're showing it, bring it to front
+
+      // If showing on macOS, bring to front
       const mainWindow = this.appState.getMainWindow()
       if (mainWindow && !this.appState.isVisible()) {
-        // Force the window to the front on macOS
         if (process.platform === "darwin") {
           mainWindow.setAlwaysOnTop(true, "normal")
-          // Reset alwaysOnTop after a brief delay
+          // Reset alwaysOnTop after a short delay
           setTimeout(() => {
             if (mainWindow && !mainWindow.isDestroyed()) {
               mainWindow.setAlwaysOnTop(true, "floating")
@@ -96,7 +117,7 @@ export class ShortcutsHelper {
       }
     })
 
-    // Unregister shortcuts when quitting
+    // --- Cleanup all shortcuts when app quits ---
     app.on("will-quit", () => {
       globalShortcut.unregisterAll()
     })

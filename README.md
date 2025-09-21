@@ -1,9 +1,9 @@
-# Cluely
+# Tinkle
 
-[Cluely](https://cluely.com) - The invisible desktop assistant that provides real-time insights, answers, and support during meetings, interviews, presentations, and professional conversations.
+[Tinkle](https://Tinkle.com) - The invisible desktop assistant that provides real-time insights, answers, and support during meetings, interviews, presentations, and professional conversations.
 
 ## Sponsored by Recall AI - API for desktop recording
-If you’re looking for a hosted desktop recording API, consider checking out [Recall.ai](https://www.recall.ai/product/desktop-recording-sdk?utm_source=github&utm_medium=sponsorship&utm_campaign=prat011-free-cluely), an API that records Zoom, Google Meet, Microsoft Teams, in-person meetings, and more.
+If you’re looking for a hosted desktop recording API, consider checking out [Recall.ai](https://www.recall.ai/product/desktop-recording-sdk?utm_source=github&utm_medium=sponsorship&utm_campaign=prat011-Tinkle), an API that records Zoom, Google Meet, Microsoft Teams, in-person meetings, and more.
 
 ## 🚀 Quick Start Guide
 
@@ -18,7 +18,7 @@ If you’re looking for a hosted desktop recording API, consider checking out [R
 1. Clone the repository:
 ```bash
 git clone [repository-url]
-cd free-cluely
+cd Tinkle
 ```
 
 2. Install dependencies:
@@ -215,9 +215,9 @@ If you see other errors:
 ✓ Algorithm and architecture guidance
 ```
 
-## Why Choose Free Cluely?
+## Why Choose Free Tinkle?
 
-| Feature | Free Cluely | Commercial Alternatives |
+| Feature | Free Tinkle | Commercial Alternatives |
 |---------|-------------|------------------------|
 | **Cost** | 100% Free | $29-99/month |
 | **Privacy** | Local AI Option | Cloud-only |
@@ -261,7 +261,7 @@ ISC License - Free for personal and commercial use.
 
 ---
 
-**⭐ Star this repo if Free Cluely helps you succeed in meetings, interviews, or presentations!**
+**⭐ Star this repo if Free Tinkle helps you succeed in meetings, interviews, or presentations!**
 
 ### 🏷️ Tags
 `ai-assistant` `meeting-notes` `interview-helper` `presentation-support` `ollama` `gemini-ai` `electron-app` `cross-platform` `privacy-focused` `open-source` `local-ai` `screenshot-analysis` `academic-helper` `sales-assistant` `coding-companion`
