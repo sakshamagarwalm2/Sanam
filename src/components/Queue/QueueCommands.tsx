@@ -238,7 +238,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
       
       {/* Audio Result Display - Fixed positioning */}
       {audioResult && (
-        <div className="absolute top-full left-0 mt-2 w-96 z-40">
+        <div className="absolute top-full left-0 mt-2 w-96 h-96 z-40">
           <div className="p-3 text-xs bg-black/90 backdrop-blur-md rounded-lg border border-white/10 text-white/90 shadow-2xl">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
