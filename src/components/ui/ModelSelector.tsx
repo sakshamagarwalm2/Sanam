@@ -1,3 +1,4 @@
+import { RefreshCcw } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 interface ModelConfig {
@@ -156,7 +157,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange, onChatOpen
                 : 'bg-white/80 text-gray-900 hover:bg-white/90'
             }`}
           >
-            ☁️ Gemini (Cloud)
+             Gemini (Cloud)
           </button>
           <button
             onClick={() => setSelectedProvider('ollama')}
@@ -166,7 +167,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange, onChatOpen
                 : 'bg-white/80 text-gray-900 hover:bg-white/90'
             }`}
           >
-            🏠 Ollama (Local)
+            Ollama (Local)
           </button>
         </div>
       </div>
@@ -200,10 +201,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange, onChatOpen
               <label className="text-xs font-medium text-white">Model</label>
               <button
                 onClick={loadOllamaModels}
-                className="px-2 py-1 text-xs bg-white/60 hover:bg-white/80 rounded transition-all"
+                className="px-2 text-xs bg-white/60 hover:bg-white/80 rounded transition-all"
                 title="Refresh models"
               >
-                Reload Icon
+                <RefreshCcw className='w-3'/>
               </button>
             </div>
             

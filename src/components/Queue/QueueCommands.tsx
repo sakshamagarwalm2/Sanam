@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { IoLogOutOutline } from "react-icons/io5"
-import { Dialog, DialogContent, DialogClose } from "../ui/dialog"
 import Logo from "../../public/TinkleLogo.png"
+import { AudioWaveform, Cpu, MessageCircleDashed, Play } from "lucide-react"
 
 interface QueueCommandsProps {
   onTooltipVisibilityChange: (visible: boolean, height: number) => void
@@ -71,6 +71,10 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
     }
   }
 
+  const clearAudioResult = () => {
+    setAudioResult(null)
+  }
+
   return (
     <div className="w-fit relative">
       <div className="text-xs text-white/90 liquid-glass-bar py-1 px-1 flex items-center justify-center gap-3 draggable-area">
@@ -78,6 +82,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
           {/* Logo */}
           <button 
             className="py-1 no-drag"
+            onClick={handleHelpClick}
             type="button"
           >
             <img 
@@ -107,25 +112,30 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
         {/* Voice Recording Button */}
         <div className="flex items-center gap-2">
           <button
-            className={`bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 py-1 text-[11px] leading-none text-white/70 flex items-center gap-1 no-drag ${isRecording ? 'bg-red-500/70 hover:bg-red-500/90' : ''}`}
+            className={`bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 text-[11px] leading-none text-white/70 flex items-center gap-1 no-drag ${isRecording ? 'bg-red-500/70 hover:bg-red-500/90' : ''}`}
             onClick={handleRecordClick}
             type="button"
           >
             {isRecording ? (
-              <span className="animate-pulse">● Stop Recording</span>
+              <span className="animate-pulse text-emerald-400 flex justify-center items-center gap-1">
+                <AudioWaveform className="w-3"/>
+                 Stop Recording</span>
             ) : (
-              <span>Listen</span>
+              <span className="flex items-center justify-center gap-1">
+                <Play className="w-3"/>
+                Listen</span>
             )}
           </button>
         </div>
 
         {/* Chat Button */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <button
-            className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 py-1 text-[11px] leading-none text-white/70 flex items-center gap-1 no-drag"
+            className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 text-[11px] leading-none text-white/70 flex items-center gap-1 no-drag"
             onClick={onChatToggle}
             type="button"
           >
+            <MessageCircleDashed className="w-3"/>
             Ask
           </button>
         </div>
@@ -133,22 +143,14 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
         {/* Settings Button */}
         <div className="flex items-center gap-2">
           <button
-            className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 py-1 text-[11px] leading-none text-white/70 flex items-center gap-1 no-drag"
+            className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 text-[11px] leading-none text-white/70 flex items-center gap-1 no-drag"
             onClick={onSettingsToggle}
             type="button"
           >
+            <Cpu className="w-3"/>
             CPU
           </button>
         </div>
-
-        {/* Help button */}
-        <button
-          className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors flex items-center justify-center cursor-pointer no-drag"
-          onClick={handleHelpClick}
-          type="button"
-        >
-          <span className="text-xs text-white/70">?</span>
-        </button>
 
         {/* Separator */}
         <div className="mx-1 h-4 w-px bg-white/20 no-drag" />
@@ -168,7 +170,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
       {isHelpVisible && (
         <div
           ref={helpRef}
-          className="absolute top-full right-0 mt-2 w-80 z-50"
+          className="absolute top-full right-0 mt-2 w-auto z-50"
         >
           <div className="p-3 text-xs bg-black/90 backdrop-blur-md rounded-lg border border-white/10 text-white/90 shadow-2xl">
             <div className="space-y-4">
@@ -234,10 +236,25 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
         </div>
       )}
       
-      {/* Audio Result Display */}
+      {/* Audio Result Display - Fixed positioning */}
       {audioResult && (
-        <div className="mt-2 p-2 bg-black/50 rounded text-white text-xs max-w-md">
-          <span className="font-semibold">Audio Result:</span> {audioResult}
+        <div className="absolute top-full left-0 mt-2 w-96 z-40">
+          <div className="p-3 text-xs bg-black/90 backdrop-blur-md rounded-lg border border-white/10 text-white/90 shadow-2xl">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1">
+                <span className="font-semibold text-emerald-400">Audio Result:</span>
+                <p className="mt-1 text-white/80 leading-relaxed">{audioResult}</p>
+              </div>
+              <button
+                onClick={clearAudioResult}
+                className="text-white/50 hover:text-white/80 transition-colors text-lg leading-none flex-shrink-0"
+                title="Clear audio result"
+                type="button"
+              >
+                ×
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

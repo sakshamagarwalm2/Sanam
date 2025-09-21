@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useQuery } from "react-query"
-import ScreenshotQueue from "../components/Queue/ScreenshotQueue"
 import {
   Toast,
   ToastTitle,
@@ -209,7 +208,7 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
     const modelName = provider === "ollama" ? model : "Gemini 2.0 Flash"
     setChatMessages((msgs) => [...msgs, { 
       role: "gemini", 
-      text: `🔄 Switched to ${provider === "ollama" ? "🏠" : "☁️"} ${modelName}. Ready for your questions!` 
+      text: `Switched to ${provider === "ollama" ? "Ollama:" : "AI:"} ${modelName}. Ready for your questions!` 
     }])
   }
 
@@ -256,11 +255,11 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
             <div className="flex-1 overflow-y-auto mb-3 p-3 rounded-lg bg-black/50 backdrop-blur-md max-h-64 min-h-[120px] glass-content border border-white/20 shadow-lg">
               {chatMessages.length === 0 ? (
                 <div className="text-sm text-white text-center mt-8">
-                   Ask from {currentModel.provider === "ollama" ? "🏠" : "☁️"} {currentModel.model}
+                   Ask from {currentModel.provider === "ollama" ? "Ollama:" : "AI:"} {currentModel.model}
                   <br />
                   <span className="text-xs text-white/50">Take a screenshot (Cmd+H) for automatic analysis</span>
                   <br />
-                  <span className="text-xs text-white/50">Click CPU## to switch AI providers</span>
+                  <span className="text-xs text-white/50">Click CPU to switch AI providers</span>
                 </div>
               ) : (
                 chatMessages.map((msg, idx) => (
@@ -311,7 +310,7 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
               />
               <button
                 type="submit"
-                className="p-2 rounded-lg bg-gray-600/80 hover:bg-gray-700/80 border border-gray-500/60 flex items-center justify-center transition-all duration-200 backdrop-blur-sm shadow-lg disabled:opacity-50"
+                className="p-2 rounded-lg bg-emerald-400 border border-gray-500/60 flex items-center justify-center transition-all duration-200 backdrop-blur-sm shadow-lg disabled:opacity-50"
                 disabled={chatLoading || !chatInput.trim()}
                 tabIndex={-1}
                 aria-label="Send"
