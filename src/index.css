@@ -73,8 +73,13 @@
 }
 
 /* Make sure buttons and interactive elements are not draggable */
-button, input, select, textarea, .interactive {
+button, input, select, textarea, .interactive, img {
   -webkit-app-region: no-drag;
+}
+
+/* Explicit no-drag class for better control */
+.no-drag {
+  -webkit-app-region: no-drag !important;
 }
 
 /* Override for the liquid glass bar - make it draggable */
@@ -84,8 +89,9 @@ button, input, select, textarea, .interactive {
 }
 
 /* But keep buttons inside clickable */
-.liquid-glass.draggable-area button {
-  -webkit-app-region: no-drag;
+.liquid-glass.draggable-area button,
+.liquid-glass.draggable-area img {
+  -webkit-app-region: no-drag !important;
   cursor: pointer;
 }
 
@@ -164,4 +170,14 @@ button, input, select, textarea, .interactive {
   );
   animation: shimmer 6s ease-in-out infinite;
   pointer-events: none;
+}
+
+/* Specific styling for logo drag area */
+.logo-drag-area {
+  -webkit-app-region: drag;
+  cursor: move;
+}
+
+.logo-drag-area:hover {
+  opacity: 0.8;
 }

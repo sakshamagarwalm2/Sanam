@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { IoLogOutOutline } from "react-icons/io5"
 import { Dialog, DialogContent, DialogClose } from "../ui/dialog"
+import Logo from "../../public/TinkleLogo.png"
 
 interface QueueCommandsProps {
   onTooltipVisibilityChange: (visible: boolean, height: number) => void
@@ -15,28 +16,23 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
   onChatToggle,
   onSettingsToggle
 }) => {
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
-  const tooltipRef = useRef<HTMLDivElement>(null)
+  const [isHelpVisible, setIsHelpVisible] = useState(false)
+  const helpRef = useRef<HTMLDivElement>(null)
   const [isRecording, setIsRecording] = useState(false)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
   const [audioResult, setAudioResult] = useState<string | null>(null)
   const chunks = useRef<Blob[]>([])
-  // Remove all chat-related state, handlers, and the Dialog overlay from this file.
 
   useEffect(() => {
-    let tooltipHeight = 0
-    if (tooltipRef.current && isTooltipVisible) {
-      tooltipHeight = tooltipRef.current.offsetHeight + 10
+    let helpHeight = 0
+    if (helpRef.current && isHelpVisible) {
+      helpHeight = helpRef.current.offsetHeight + 10
     }
-    onTooltipVisibilityChange(isTooltipVisible, tooltipHeight)
-  }, [isTooltipVisible])
+    onTooltipVisibilityChange(isHelpVisible, helpHeight)
+  }, [isHelpVisible])
 
-  const handleMouseEnter = () => {
-    setIsTooltipVisible(true)
-  }
-
-  const handleMouseLeave = () => {
-    setIsTooltipVisible(false)
+  const handleHelpClick = () => {
+    setIsHelpVisible(!isHelpVisible)
   }
 
   const handleRecordClick = async () => {
@@ -75,36 +71,33 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
     }
   }
 
-  // Remove handleChatSend function
-
   return (
-    <div className="w-fit">
-      <div className="text-xs text-white/90 liquid-glass-bar py-1 px-4 flex items-center justify-center gap-4 draggable-area">
-        {/* Show/Hide */}
-        <div className="flex items-center gap-2">
-          {/* <span className="text-[11px] leading-none">Show/Hide</span> */}
-          <div className="flex gap-1">
-            <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
-              ⌘
-            </button>
-            {/* <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
-              B
-            </button> */}
-          </div>
+    <div className="w-fit relative">
+      <div className="text-xs text-white/90 liquid-glass-bar py-1 px-1 flex items-center justify-center gap-3 draggable-area">
+        <div className="flex items-center">
+          {/* Logo */}
+          <button 
+            className="py-1 no-drag"
+            type="button"
+          >
+            <img 
+              src={Logo} 
+              alt="Tinkle Logo" 
+              className="w-10 h-10" 
+              draggable={false}
+            />
+          </button>
         </div>
-
-        {/* Screenshot */}
-        {/* Removed screenshot button from main bar for seamless screenshot-to-LLM UX */}
 
         {/* Solve Command */}
         {screenshots.length > 0 && (
           <div className="flex items-center gap-2">
             <span className="text-[11px] leading-none">Solve</span>
             <div className="flex gap-1">
-              <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
+              <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70 no-drag">
                 ⌘
               </button>
-              <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
+              <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70 no-drag">
                 ↵
               </button>
             </div>
@@ -114,7 +107,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
         {/* Voice Recording Button */}
         <div className="flex items-center gap-2">
           <button
-            className={`bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 py-1 text-[11px] leading-none text-white/70 flex items-center gap-1 ${isRecording ? 'bg-red-500/70 hover:bg-red-500/90' : ''}`}
+            className={`bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 py-1 text-[11px] leading-none text-white/70 flex items-center gap-1 no-drag ${isRecording ? 'bg-red-500/70 hover:bg-red-500/90' : ''}`}
             onClick={handleRecordClick}
             type="button"
           >
@@ -129,7 +122,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
         {/* Chat Button */}
         <div className="flex items-center gap-2">
           <button
-            className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 py-1 text-[11px] leading-none text-white/70 flex items-center gap-1"
+            className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 py-1 text-[11px] leading-none text-white/70 flex items-center gap-1 no-drag"
             onClick={onChatToggle}
             type="button"
           >
@@ -140,7 +133,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
         {/* Settings Button */}
         <div className="flex items-center gap-2">
           <button
-            className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 py-1 text-[11px] leading-none text-white/70 flex items-center gap-1"
+            className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-2 py-1 text-[11px] leading-none text-white/70 flex items-center gap-1 no-drag"
             onClick={onSettingsToggle}
             type="button"
           >
@@ -148,110 +141,105 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
           </button>
         </div>
 
-        {/* Add this button in the main button row, before the separator and sign out */}
-        {/* Remove the Chat button */}
-
-        {/* Question mark with tooltip */}
-        <div
-          className="relative inline-block"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+        {/* Help button */}
+        <button
+          className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors flex items-center justify-center cursor-pointer no-drag"
+          onClick={handleHelpClick}
+          type="button"
         >
-          <div className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors flex items-center justify-center cursor-help z-10">
-            <span className="text-xs text-white/70">?</span>
-          </div>
-
-          {/* Tooltip Content */}
-          {isTooltipVisible && (
-            <div
-              ref={tooltipRef}
-              className="absolute top-full right-0 mt-2 w-80"
-            >
-              <div className="p-3 text-xs bg-black/80 backdrop-blur-md rounded-lg border border-white/10 text-white/90 shadow-lg">
-                <div className="space-y-4">
-                  <h3 className="font-medium truncate">Keyboard Shortcuts</h3>
-                  <div className="space-y-3">
-                    {/* Toggle Command */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="truncate">Toggle Window</span>
-                        <div className="flex gap-1 flex-shrink-0">
-                          <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                            ⌘
-                          </span>
-                          <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                            B
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] leading-relaxed text-white/70 truncate">
-                        Show or hide this window.
-                      </p>
-                    </div>
-                    {/* Screenshot Command */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="truncate">Take Screenshot</span>
-                        <div className="flex gap-1 flex-shrink-0">
-                          <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                            ⌘
-                          </span>
-                          <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                            H
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] leading-relaxed text-white/70 truncate">
-                        Take a screenshot of the problem description. The tool
-                        will extract and analyze the problem. The 5 latest
-                        screenshots are saved.
-                      </p>
-                    </div>
-
-                    {/* Solve Command */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="truncate">Solve Problem</span>
-                        <div className="flex gap-1 flex-shrink-0">
-                          <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                            ⌘
-                          </span>
-                          <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                            ↵
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] leading-relaxed text-white/70 truncate">
-                        Generate a solution based on the current problem.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+          <span className="text-xs text-white/70">?</span>
+        </button>
 
         {/* Separator */}
-        <div className="mx-2 h-4 w-px bg-white/20" />
+        <div className="mx-1 h-4 w-px bg-white/20 no-drag" />
 
-        {/* Sign Out Button - Moved to end */}
+        {/* Sign Out Button */}
         <button
-          className="text-red-500/70 hover:text-red-500/90 transition-colors hover:cursor-pointer"
+          className="text-red-500/70 hover:text-red-500/90 transition-colors hover:cursor-pointer mr-3 no-drag"
           title="Sign Out"
           onClick={() => window.electronAPI.quitApp()}
+          type="button"
         >
           <IoLogOutOutline className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Help Content Panel */}
+      {isHelpVisible && (
+        <div
+          ref={helpRef}
+          className="absolute top-full right-0 mt-2 w-80 z-50"
+        >
+          <div className="p-3 text-xs bg-black/90 backdrop-blur-md rounded-lg border border-white/10 text-white/90 shadow-2xl">
+            <div className="space-y-4">
+              <h3 className="font-medium">Keyboard Shortcuts</h3>
+              <div className="space-y-3">
+                {/* Toggle Command */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span>Toggle Window</span>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
+                        ⌘
+                      </span>
+                      <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
+                        B
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] leading-relaxed text-white/70">
+                    Show or hide this window.
+                  </p>
+                </div>
+                {/* Screenshot Command */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span>Take Screenshot</span>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
+                        ⌘
+                      </span>
+                      <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
+                        H
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] leading-relaxed text-white/70">
+                    Take a screenshot of the problem description. The tool
+                    will extract and analyze the problem. The 5 latest
+                    screenshots are saved.
+                  </p>
+                </div>
+
+                {/* Solve Command */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span>Solve Problem</span>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
+                        ⌘
+                      </span>
+                      <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
+                        ↵
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] leading-relaxed text-white/70">
+                    Generate a solution based on the current problem.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Audio Result Display */}
       {audioResult && (
-        <div className="mt-2 p-2 bg-white/10 rounded text-white text-xs max-w-md">
+        <div className="mt-2 p-2 bg-black/50 rounded text-white text-xs max-w-md">
           <span className="font-semibold">Audio Result:</span> {audioResult}
         </div>
       )}
-      {/* Chat Dialog Overlay */}
-      {/* Remove the Dialog component */}
     </div>
   )
 }
