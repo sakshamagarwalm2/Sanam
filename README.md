@@ -2,9 +2,6 @@
 
 **The invisible desktop assistant that provides real-time insights, answers, and support during meetings, interviews, presentations, and professional conversations.**
 
-![Tinkle Interface](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)
-![License](https://img.shields.io/badge/License-ISC-green)
-![Node.js](https://img.shields.io/badge/Node.js-16+-brightgreen)
 
 ## Overview
 
