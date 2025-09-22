@@ -1,40 +1,59 @@
 {
-  "name": "interview-coder",
+  "name": "tinkle-app",
   "version": "1.0.0",
+  "description": "Tinkle - AI Desktop Assistant for meetings, interviews, and presentations",
   "main": "./dist-electron/main.js",
+  "homepage": "./",
   "scripts": {
     "clean": "rimraf dist dist-electron",
     "dev": "vite",
-    "build": "npm run clean && tsc && vite build",
+    "build": "npm run clean && tsc && vite build && npm run electron:build-ts",
     "preview": "vite preview",
     "postinstall": "cross-env SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm rebuild sharp",
-    "electron:dev": "tsc -p electron/tsconfig.json && cross-env NODE_ENV=development electron .",
-    "electron:build": "tsc -p electron/tsconfig.json && cross-env NODE_ENV=production electron .",
+    "electron:dev": "npm run electron:build-ts && cross-env NODE_ENV=development electron .",
+    "electron:build": "npm run electron:build-ts && cross-env NODE_ENV=production electron .",
+    "electron:build-ts": "tsc -p electron/tsconfig.json --outDir dist-electron",
     "app:dev": "concurrently \"npm run dev -- --port 5180\" \"wait-on http://localhost:5180 && npm run electron:dev\"",
     "app:build": "npm run build && electron-builder",
     "watch": "tsc -p electron/tsconfig.json --watch",
     "start": "npm run app:dev",
-    "dist": "npm run app:build"
+    "dist": "npm run app:build",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:linux": "npm run build && electron-builder --linux"
   },
   "build": {
-    "appId": "com.electron.meeting-notes",
-    "productName": "Meeting Notes Coder",
-    "files": [
-      "dist/**/*",
-      "dist-electron/**/*",
-      "package.json",
-      "node_modules/**/*"
-    ],
+    "appId": "com.tinkle.app",
+    "productName": "Tinkle",
     "directories": {
       "output": "release",
       "buildResources": "assets"
     },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json",
+      "node_modules/**/*",
+      "assets/**/*"
+    ],
     "extraResources": [
       {
         "from": "assets/",
-        "to": "assets/"
+        "to": "assets/",
+        "filter": ["**/*"]
       }
     ],
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Tinkle",
+      "include": "installer.nsh",
+      "script": "assets/installer.nsi"
+    },
     "mac": {
       "category": "public.app-category.productivity",
       "target": [
@@ -44,19 +63,47 @@
             "x64",
             "arm64"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "icon": "assets/icons/mac/icon.icns",
       "hardenedRuntime": true,
-      "entitlements": "assets/entitlements.mac.plist"
+      "gatekeeperAssess": false,
+      "entitlements": "assets/entitlements.mac.plist",
+      "entitlementsInherit": "assets/entitlements.mac.plist"
+    },
+    "dmg": {
+      "sign": false,
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
     },
     "win": {
       "target": [
         {
           "target": "nsis",
           "arch": [
-            "x64",
-            "ia32"
+            "x64"
           ]
         },
         {
@@ -68,6 +115,9 @@
       ],
       "icon": "assets/icons/win/icon.ico",
       "requestedExecutionLevel": "asInvoker"
+    },
+    "portable": {
+      "artifactName": "Tinkle-${version}-Portable.exe"
     },
     "linux": {
       "target": [
@@ -84,27 +134,36 @@
           ]
         }
       ],
-      "icon": "assets/icons/png/",
-      "category": "Office"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "deleteAppDataOnUninstall": false
+      "icon": "assets/icons/png/512x512.png",
+      "category": "Office",
+      "desktop": {
+        "Name": "Tinkle",
+        "Comment": "AI Desktop Assistant",
+        "Categories": "Office;Utility;"
+      }
     },
     "publish": [
       {
         "provider": "github",
-        "owner": "ibttf",
-        "repo": "interview-coder-frontend"
+        "owner": "sakshamagarwalm2",
+        "repo": "Tinkle",
+        "private": false
       }
     ]
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "electron",
+    "ai",
+    "assistant",
+    "meetings",
+    "interviews",
+    "productivity"
+  ],
+  "author": {
+    "name": "Saksham Agarwal",
+    "email": "sakshamagarwalm2@gmail.com"
+  },
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "@types/color": "^4.2.0",
     "@types/diff": "^6.0.0",
@@ -134,7 +193,6 @@
     "wait-on": "^8.0.1"
   },
   "dependencies": {
-    "@google/genai": "^0.12.0",
     "@google/generative-ai": "^0.2.1",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.2",
